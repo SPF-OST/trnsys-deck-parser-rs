@@ -2,5 +2,7 @@
 name = "trnsys-deck-parser-rs"
 version = "0.1.0"
 edition = "2021"
+description = "Parse, create in memory and serialize TRNSYS deck files in rust."
+license = "MIT"
 
 [dependencies]
