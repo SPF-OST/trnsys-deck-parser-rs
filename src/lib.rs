@@ -1,6 +1,4 @@
 mod parse {
-    use regex;
-
     struct Tokens {
         variable: regex::Regex,
     }
@@ -23,8 +21,8 @@ mod parse {
         message: &'i str,
     }
 
-    fn parse_variable<'i, 'e>(tokens: Tokens, input: &'i str) -> Result<Variable<'i>, Error<'e>> {
-        match tokens.variable.find(&input) {
+    fn parse_variable<'e>(tokens: Tokens, input: &str) -> Result<Variable, Error<'e>> {
+        match tokens.variable.find(input) {
             Some(m) => Ok(Variable { name: m.as_str() }),
             None => Err(Error {
                 message: "Not a variable.",
