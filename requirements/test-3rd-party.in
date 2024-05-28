@@ -1,0 +1,3 @@
+-r build-3rd-party.in
+
+pytest

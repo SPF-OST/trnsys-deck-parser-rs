@@ -1,65 +1,17 @@
-mod parse {
-    struct Tokens {
-        variable: regex::Regex,
-    }
+mod parse;
 
-    impl Tokens {
-        pub fn new() -> Tokens {
-            Tokens {
-                variable: regex::Regex::new(r"[A-Za-z]+").unwrap(),
-            }
-        }
-    }
+#[cfg(feature = "python-bindings")]
+mod python;
 
-    #[derive(PartialEq, Debug)]
-    pub struct Variable<'i> {
-        name: &'i str,
-    }
+#[cfg(feature = "python-bindings")]
+use pyo3::prelude::*;
 
-    #[derive(PartialEq, Debug)]
-    pub struct Error<'i> {
-        message: &'i str,
-    }
-
-    fn parse_variable<'e>(tokens: Tokens, input: &str) -> Result<Variable, Error<'e>> {
-        match tokens.variable.find(input) {
-            Some(m) => Ok(Variable { name: m.as_str() }),
-            None => Err(Error {
-                message: "Not a variable.",
-            }),
-        }
-    }
-
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[test]
-        fn test_a_variable() {
-            let tokens = Tokens::new();
-
-            let result = parse_variable(tokens, "VIceSscaled");
-
-            assert_eq!(
-                result,
-                Ok(Variable {
-                    name: "VIceSscaled"
-                })
-            );
-        }
-
-        #[test]
-        fn test_not_a_variable() {
-            let tokens = Tokens::new();
-
-            let result = parse_variable(tokens, "1.297");
-
-            assert_eq!(
-                result,
-                Err(Error {
-                    message: "Not a variable."
-                })
-            );
-        }
-    }
+/// A Python module implemented in Rust.
+#[cfg(feature = "python-bindings")]
+#[pymodule]
+fn trnsys_deck_parser_rs(py: Python<'_>, m: &PyModule) -> PyResult<()> {
+    m.add_class::<parse::Variable>()?;
+    m.add_class::<parse::Parser>()?;
+    m.add("ParseError", py.get_type::<python::ParseError>())?;
+    Ok(())
 }

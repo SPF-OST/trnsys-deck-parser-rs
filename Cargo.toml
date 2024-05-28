@@ -2,8 +2,18 @@
 name = "trnsys-deck-parser-rs"
 version = "0.1.0"
 edition = "2021"
-description = "Parse, create in memory and serialize TRNSYS deck files in rust."
-license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "trnsys_deck_parser_rs"
+crate-type = ["cdylib"]
 
 [dependencies]
-regex = "1"
+pyo3 = {version = "0.20.0", optional = true}
+regex = "1.10.4"
+
+[features]
+python-bindings = ["dep:pyo3"]
+
+[package.metadata.rust-analyzer.cargo]
+features = ["trnsys-deck-parser-rs/python-bindings"]
