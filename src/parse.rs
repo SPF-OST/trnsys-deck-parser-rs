@@ -52,9 +52,53 @@ impl TokenDefinition {
     }
 }
 
+pub struct Lexer<'a> {
+    input: String,
+    current_pos: usize,
+    token_definitions: Vec<&'a TokenDefinition>,
+}
+
 #[cfg_attr(feature = "python-bindings", pyclass)]
-pub struct Parser {
-    token_definitions: TokenDefinitions,
+#[derive(PartialEq, Debug)]
+pub struct Error {
+    pub message: String,
+}
+
+impl Lexer<'_> {
+    pub fn new<'a>(
+        input: String,
+        current_pos: usize,
+        token_definitions: Vec<&'a TokenDefinition>,
+    ) -> Lexer {
+        Lexer {
+            input,
+            current_pos,
+            token_definitions,
+        }
+    }
+
+    pub fn get_next_token(&mut self) -> Option<&TokenDefinition> {
+        for token_definition in &self.token_definitions {
+            match (&token_definition.regex).find(&self.input) {
+                Some(m) => {
+                    self.current_pos = m.end();
+                    return Some(&token_definition);
+                }
+                None => (),
+            }
+        }
+
+        return None;
+    }
+}
+
+pub struct ParserBase<'a> {
+    lexer: &'a Lexer<'a>,
+    current_token: &'a TokenDefinition,
+}
+
+impl ParserBase<'_> {
+    pub fn accept(_token_definition: &TokenDefinition) {}
 }
 
 #[cfg_attr(feature = "python-bindings", pyclass(get_all))]
@@ -93,76 +137,17 @@ impl Variable {
     }
 }
 
-#[cfg_attr(feature = "python-bindings", pyclass)]
-#[derive(PartialEq, Debug)]
-pub struct Error {
-    pub message: String,
-}
-
-#[cfg_attr(feature = "python-bindings", pymethods)]
-impl Parser {
-    #[cfg(feature = "python-bindings")]
-    #[new]
-    pub fn new() -> Parser {
-        Parser {
-            token_definitions: TokenDefinitions::new(),
-        }
-    }
-
-    pub fn parse_variable(&self, input: &str) -> Result<Variable, Error> {
-        let token_definition = &self.token_definitions.variable;
-
-        match (&token_definition.regex).find(input) {
-            Some(m) => {
-                let name = String::from(m.as_str());
-                Ok(Variable { name })
-            }
-            None => {
-                let message = format!("Not a {}.", token_definition.description);
-                Err(Error { message })
-            }
-        }
-    }
-}
-
-#[cfg(not(feature = "python-bindings"))]
-impl Parser {
-    pub fn new() -> Parser {
-        Parser {
-            token_definitions: TokenDefinitions::new(),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_a_variable() {
-        let parser = Parser::new();
-
-        let result = parser.parse_variable("VIceSscaled");
-
-        assert_eq!(
-            result,
-            Ok(Variable {
-                name: String::from("VIceSscaled")
-            })
-        );
-    }
-
-    #[test]
-    fn test_not_a_variable() {
-        let parser = Parser::new();
-
-        let result = parser.parse_variable("1.297");
-
-        assert_eq!(
-            result,
-            Err(Error {
-                message: String::from("Not a variable name.")
-            })
+        let token_definitions = TokenDefinitions::new();
+        let lexer = Lexer::new(
+            "VIceSscaled".to_string(),
+            0,
+            [&token_definitions.variable].to_vec(),
         );
     }
 
