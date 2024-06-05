@@ -11,7 +11,6 @@ use pyo3::prelude::*;
 #[pymodule]
 fn trnsys_deck_parser_rs(py: Python<'_>, m: &PyModule) -> PyResult<()> {
     m.add_class::<parse::Variable>()?;
-    m.add_class::<parse::Parser>()?;
     m.add("ParseError", py.get_type::<python::ParseError>())?;
     Ok(())
 }
