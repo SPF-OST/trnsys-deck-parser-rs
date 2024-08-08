@@ -21,7 +21,10 @@ mod tests {
 
         let token = lexer.get_next_token().expect("Should find token.");
         
-        assert!(std::ptr::eq(token.definition, &token_definitions[0]));
+        let first_token = &token_definitions[0];
+        assert_eq!(first_token.description, "variable");
+        
+        assert!(std::ptr::eq(token.definition, first_token));
     }
 
     #[test]
