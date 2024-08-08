@@ -1,7 +1,7 @@
 use super::base;
 use super::lexer;
 
-struct Parser<'t, 'i> {
+pub struct Parser<'t, 'i> {
     token_definitions: &'t lexer::TokenDefinitions,
     state: base::parser::ParseState<'t, 'i>,
 }
