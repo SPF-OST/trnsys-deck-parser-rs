@@ -1,5 +1,7 @@
 mod parse;
 
+pub mod ddck;
+
 #[cfg(feature = "python-bindings")]
 mod python;
 
