@@ -33,6 +33,22 @@ impl<'t, 'i> Parser<'t, 'i> {
     }
 }
 
+pub struct ParserBuilder {
+    token_definitions: lexer::TokenDefinitions,
+}
+
+impl ParserBuilder {
+    pub fn new() -> ParserBuilder {
+        ParserBuilder {
+            token_definitions: lexer::TokenDefinitions::new(),
+        }
+    }
+
+    pub fn build<'b, 'i>(&'b self, input: &'i str) -> Parser<'b, 'i> {
+        Parser::new(&self.token_definitions, input)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use base::parser::Parser;
@@ -41,12 +57,11 @@ mod tests {
 
     #[test]
     fn test_parse_not_implemented() {
-        let token_definitions = lexer::TokenDefinitions::new();
-
         let input = "EQUATIONS 1
 VIceS = 4
 ";
-        let mut parser = super::Parser::new(&token_definitions, input);
+        let parser_builder = super::ParserBuilder::new();
+        let mut parser = parser_builder.build(input);
 
         parser.parse().expect_err("Shouldn't be implemented yet.");
     }
