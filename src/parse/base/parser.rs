@@ -10,6 +10,7 @@ pub struct Error {
     pub input_pos: usize,
 }
 
+#[derive(Debug)]
 pub struct Success<T> {
     value: T,
     remaining_input_string_start_index: usize,
@@ -17,8 +18,8 @@ pub struct Success<T> {
 
 pub type ParseResult<T> = Result<Success<T>, Error>;
 
-pub trait Parser {
-    fn parse<T>(&mut self) -> ParseResult<T>;
+pub trait Parser<T> {
+    fn parse(&mut self) -> ParseResult<T>;
 }
 
 pub struct ParseState<'t, 'i> {
@@ -57,8 +58,8 @@ impl<'t, 'i> ParseState<'t, 'i> {
         return Some(token);
     }
 
-    pub fn expect_sub_parser<S>(&mut self, sub_parser: &mut impl Parser) -> ParseResult<S> {
-        let parse_result = sub_parser.parse::<S>()?;
+    pub fn expect_sub_parser<S>(&mut self, sub_parser: &mut impl Parser<S>) -> ParseResult<S> {
+        let parse_result = sub_parser.parse()?;
 
         self.lexer
             .advance_current_pos(parse_result.remaining_input_string_start_index);

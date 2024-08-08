@@ -1,14 +1,17 @@
-use super::base::{lexer, parser};
+use super::base;
+use super::lexer;
 
 struct Parser<'t, 'i> {
-    state: parser::ParseState<'t, 'i>,
+    token_definitions: &'t lexer::TokenDefinitions,
+    state: base::parser::ParseState<'t, 'i>,
 }
 
+#[derive(Debug)]
 struct Ddck {}
 
-impl<'t, 'i> parser::Parser for Parser<'t, 'i> {
-    fn parse<Ddck>(&mut self) -> parser::ParseResult<Ddck> {
-        Err(parser::Error {
+impl<'t, 'i> base::parser::Parser<Ddck> for Parser<'t, 'i> {
+    fn parse(&mut self) -> base::parser::ParseResult<Ddck> {
+        Err(base::parser::Error {
             message: "Not implemented!".to_string(),
             input_pos: 0,
         })
@@ -16,9 +19,35 @@ impl<'t, 'i> parser::Parser for Parser<'t, 'i> {
 }
 
 impl<'t, 'i> Parser<'t, 'i> {
-    pub fn new<'tt, 'ii>(lexer: lexer::Lexer<'tt, 'ii>) -> Parser<'tt, 'ii> {
-        let parse_state = parser::ParseState::new(lexer);
+    pub fn new<'tt, 'ii>(
+        token_definitions: &'tt lexer::TokenDefinitions,
+        input: &'ii str,
+    ) -> Parser<'tt, 'ii> {
+        let lexer = base::lexer::Lexer::new(input, 0, token_definitions.all().into_iter());
+        let parse_state = base::parser::ParseState::new(lexer);
 
-        Parser { state: parse_state }
+        Parser {
+            token_definitions,
+            state: parse_state,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use base::parser::Parser;
+
+    use super::*;
+
+    #[test]
+    fn test_parse_not_implemented() {
+        let token_definitions = lexer::TokenDefinitions::new();
+
+        let input = "EQUATIONS 1
+VIceS = 4
+";
+        let mut parser = super::Parser::new(&token_definitions, input);
+
+        parser.parse().expect_err("Shouldn't be implemented yet.");
     }
 }

@@ -53,8 +53,9 @@ impl<'t, 'i> Lexer<'t, 'i> {
         input: &'ii str,
         current_pos: usize,
         token_definitions: I,
-    ) -> Lexer<'tt, 'ii> 
-    where I : Iterator<Item = &'tt TokenDefinition>
+    ) -> Lexer<'tt, 'ii>
+    where
+        I: Iterator<Item = &'tt TokenDefinition>,
     {
         Lexer {
             input,
